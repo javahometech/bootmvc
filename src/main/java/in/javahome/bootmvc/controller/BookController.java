@@ -2,22 +2,22 @@ package in.javahome.bootmvc.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import in.javahome.bootmvc.entity.Book;
-import in.javahome.bootmvc.repository.BookRepository;
+import in.javahome.bootmvc.service.BookService;
 
 @Controller
 public class BookController {
-	
 	@Autowired
-	private BookRepository bookRepo;
+	private BookService bookServ;
 	
-	@RequestMapping("/bootWelcome")
-	public String welcome(){
-		return "forward:welcome123.jsp";
+	@RequestMapping("/bookView")
+	public String getBookView(){
+		return "book";
 	}
 	
 	@RequestMapping(value="/book", method=RequestMethod.PUT)
@@ -27,7 +27,7 @@ public class BookController {
 		b.setBookId(1);
 		b.setBookName("Spring Boot");
 		b.setBookCost(700.0);
-		bookRepo.save(b);
+		bookServ.addBook(b);
 		return "Book "+b.getBookName()+" successfully updated.....";
 		
 	}
@@ -35,29 +35,30 @@ public class BookController {
 	@RequestMapping(value="/book", method=RequestMethod.DELETE)
 	@ResponseBody
 	public String deleteBook(){
-		bookRepo.delete(1);
+//		bookRepo.delete(1);
 		return "Book successfully deleted.....";
 		
 	}
 	
 	@RequestMapping(value="/book", method=RequestMethod.POST)
-	@ResponseBody
-	public String addBook(){
-		Book b = new Book();
-		b.setBookName("Spring");
-		b.setBookCost(600.0);
-		bookRepo.save(b);
-		return "Book "+b.getBookName()+" successfully added.....";
+	public String addBook(Book book, ModelMap map){
+		try {
+			bookServ.addBook(book);
+			map.addAttribute("message", book.getBookName()+" added successfully");
+		} catch (Exception e) {
+			map.addAttribute("message", book.getBookName()+e.getMessage());
+		}
 		
+		return "book";
 	}
 	
 	@RequestMapping(value="/book", method=RequestMethod.GET)
 	@ResponseBody
 	public String findBookByName(){
 		
-		Book book = bookRepo.findByBookName("Spring");
-		System.out.println(book.getBookName());
-		System.out.println(book.getBookCost());
+//		Book book = bookRepo.findByBookName("Spring");
+//		System.out.println(book.getBookName());
+//		System.out.println(book.getBookCost());
 		return "Book successfully added.....";
 		
 	}
